@@ -1,0 +1,5 @@
+demo:build
+demo:test
+build
+false
+project forebay/lifecycle-demo
