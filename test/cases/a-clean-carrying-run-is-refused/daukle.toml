@@ -1,0 +1,16 @@
+schema = 1
+project = "forebay/a-clean-carrying-run-is-refused"
+version = "1.0.0"
+
+[modules]
+
+[plugins.demo]
+path = "./plugins/demo.lua"
+
+# The override is how a plugin under development is required without publishing
+# it. test/run.sh stages this repository at ./lifecycle for exactly this line.
+  [plugins.demo.requires.lifecycle]
+  path = "./lifecycle"
+
+[toolchains.demo]
+version = "1"
