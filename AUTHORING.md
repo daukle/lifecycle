@@ -1,12 +1,16 @@
 # Authoring notes
 
-**This repository is scaffolding. There is no `plugin.lua` yet, and that is deliberate.**
+`plugin.lua` plus `lib/names.lua` is the whole plugin. It is published as a release asset, an
+uncompressed tar of the two files, and acquired by a `[plugins]` entry naming
+`daukle/lifecycle@<range>`. It is more often **required by another plugin** than declared directly:
+`daukle/cmake` requires it and reads `lifecycle:lib/names`.
 
-The decision to build this plugin was taken on 2026-10-01. The design is not written, and writing
-one now would assert mechanisms that do not exist, which is the mistake recorded against four of
-daukle's own child specs. The spec is tracked as `D-37` in `daukle/docs`, and it is to be designed
-alongside `D-31`, because both depend on one plugin naming another and neither has exercised that
-path yet.
+**This file said "there is no `plugin.lua` yet, and that is deliberate" until 2026-10-05**, which
+was true when `D-37` was opened on 2026-10-01 and false from the moment the plugin was built and
+released as `1.0.0`. It is recorded rather than quietly deleted because it is this organization's
+most-repeated lesson aimed at itself: **a document describing what does not exist yet does not
+notice when it does.** Nothing in a green suite catches it, and the repository was green
+throughout.
 
 ## The problem this plugin exists for
 
@@ -36,9 +40,14 @@ signal that it is the wrong layer.
 ## The cost, recorded because it was the argument against
 
 A repository, a branch pair, a workflow, a release to publish, and a cross-plugin dependency
-resolved at load time. The dependency is the real cost: it is the first time a plugin will name
-another plugin, and `D-31`'s layering (`cmake` depending on `c`, `gradle` and `maven` on `java`)
-uses the same mechanism. If that mechanism has a hole, both find it.
+resolved at load time. The dependency was the real cost: it was the first time a plugin named
+another plugin.
+
+**It has since been paid three times over and the mechanism held.** `daukle/cmake` requires this
+plugin AND `daukle/c`; `daukle/gradle` requires `daukle/java` and reads its `lib/jdks`. The one
+thing that surprised a reader is that **the alias is not the repository name**: `cmake` requires
+`daukle/c` as `cc`, because core refuses a one-letter alias, a letter before a colon being a
+Windows drive letter.
 
 ## Conventions this repository is held to
 
@@ -56,7 +65,8 @@ because Git Bash ignores the bit. `git ls-files -s` is the check.
 ## CI
 
 `test.yml` is a thin caller into `intisy/workflows`, per the cross-org rule that no repository
-carries its own workflow logic. **It will fail until a `test/run.sh` exists**, which is why the
-first commit here carries `[skip ci]`. Dispatch it by hand once the plugin and its suite land:
+carries its own workflow logic. The suite exists and runs green on all three runners; a push
+triggers it, and `gh workflow run test.yml --ref main` re-runs it without a commit.
 
-    gh workflow run test.yml --ref main
+`publish.yml` is the second thin caller: **a tag push is the whole release mechanism**, building
+the tar and creating the release.
